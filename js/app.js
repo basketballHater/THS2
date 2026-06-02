@@ -35,18 +35,18 @@ Router.register('dashboard', async () => {
     <div class="permbar">
       <div class="left_sidebar">
         <div class="logo">
-          <div class="gift">pet<span class="Ease">Hospital</span></div>
+          <div class="gift">pet<span class="Ease">Hospitalll</span></div>
         </div>
         <nav class="nav-section">
           ${[
             { id: 'products',  label: 'Products',  icon: 'fa-hospital' },
-            { id: 'hospitals',  label: 'Hospitals',  icon: 'fa-hospital' },
-            { id: 'suppliers',  label: 'Suppliers',  icon: 'fa-hospital' },
+            { id: 'hospitalssss',  label: 'Hospitalssss',  icon: 'fa-hospital' },
+            { id: 'suppliers',  label: 'Supplierssss',  icon: 'fa-hospital' },
             { id: 'employees',  label: 'Employeeees',  icon: 'fa-users' },
             { id: 'items',      label: 'Items',      icon: 'fa-box' },
             { id: 'recievers',  label: 'Receivers',  icon: 'fa-person-chalkboard' },
             { id: 'orders',     label: 'Orders',     icon: 'fa-receipt' },
-            { id: 'categories', label: 'Categories', icon: 'fa-tags' },
+            { id: 'categoriessss', label: 'Categoriessss', icon: 'fa-tags' },
             { id: 'stock',      label: 'Stock',      icon: 'fa-warehouse' },
             { id: 'charts',     label: 'Charts',     icon: 'fa-chart-bar' },
           ].map(p => `

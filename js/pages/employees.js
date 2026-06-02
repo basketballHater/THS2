@@ -17,12 +17,15 @@ Router.register('employees/view', async () => {
       <button class="btn-primary" id="btn-add"><i class="fas fa-plus"></i> Add Employee</button>
     </div>
     ${buildTable(
-      ['ID', 'Name', 'Contact Info', 'Actions'],
+      ['ID', 'Name', 'Designation', 'Address', 'Contact Info', 'Email', 'Actions'],
       res.data,
       r => `<tr>
         <td>${r.id}</td>
         <td>${esc(r.name)}</td>
-        <td>${esc(r.contact_info)}</td>
+        <td>${esc(r.designation)}</td>
+        <td>${esc(r.address)}</td>
+        <td>${esc(r.contact)}</td>
+        <td>${esc(r.email)}</td>
         <td class="action-cell">
           <a href="#" class="btn-edit"   data-id="${r.id}"><i class="fas fa-pen"></i> Edit</a>
           <a href="#" class="btn-delete" data-id="${r.id}"><i class="fas fa-trash"></i> Delete</a>
@@ -49,9 +52,12 @@ Router.register('employees/insert', () => {
     <div class="page-header"><h1 class="page-title">Add Employee</h1></div>
     <form class="form-card" id="form">
       <div class="form-group"><label>Name</label><input id="name" placeholder="Employee Name" required></div>
+      <div class="form-group"><label>Designation</label><input id="designation" placeholder="Employee Designation" required></div>
+      <div class="form-group"><label>Address</label><textarea id="address" placeholder="Employee Address" required></textarea></div>
       <div class="form-group"><label>Contact Info</label>
         <div class="input-prefix"><span>+94</span><input id="contact" placeholder="7XXXXXXXX" minlength="9" maxlength="9" required></div>
       </div>
+      <div class="form-group"><label>Email</label><input type="email" id="email" placeholder="Employee Email" required></div>
       <div class="form-actions">
         <button type="button" class="btn-secondary" id="btn-back">Cancel</button>
         <button type="submit" class="btn-primary">Save Employee</button>
@@ -61,7 +67,12 @@ Router.register('employees/insert', () => {
   document.getElementById('btn-back').onclick = () => Router.navigate('employees/view');
   document.getElementById('form').onsubmit = async e => {
     e.preventDefault();
-    const r = await window.db.employees.insert({ name: formVal('name'), contact: formVal('contact') });
+    const r = await window.db.employees.insert({ 
+      name: formVal('name'), 
+      designation: formVal('designation'), 
+      address: formVal('address'), 
+      contact: formVal('contact'), 
+      email: formVal('email')});
     if (r.success) { toast('Employee added'); Router.navigate('employees/view'); }
     else toast('Error: ' + r.error, true);
   };
@@ -76,20 +87,31 @@ Router.register('employees/edit', async ({ id }) => {
   setContent(`
     <div class="page-header"><h1 class="page-title">Edit Employee</h1></div>
     <form class="form-card" id="form">
-      <div class="form-group"><label>Name</label><input id="name" value="${esc(emp.name)}" required></div>
+      <div class="form-group"><label>Name</label><input id="name" placeholder="Employee Name" value="${esc(emp.name)}" required></div>
+      <div class="form-group"><label>Designation</label><input id="designation" placeholder="Employee Designation" value="${esc(emp.designation)}" required></div>
+      <div class="form-group"><label>Address</label><textarea id="address" placeholder="Employee Address" required>${esc(emp.address)}</textarea></div>
       <div class="form-group"><label>Contact Info</label>
-        <div class="input-prefix"><span>+94</span><input id="contact" value="${esc(emp.contact_info)}" minlength="9" maxlength="9" required></div>
+        <div class="input-prefix"><span>+94</span><input id="contact" placeholder="7XXXXXXXX" minlength="9" maxlength="9" value="${esc(emp.contact)}" required></div>
       </div>
+      <div class="form-group"><label>Email</label><input type="email" id="email" placeholder="Employee Email" value="${esc(emp.email)}" required></div>
       <div class="form-actions">
         <button type="button" class="btn-secondary" id="btn-back">Cancel</button>
         <button type="submit" class="btn-primary">Update Employee</button>
       </div>
-    </form>`);
+    </form>
+    `);
 
   document.getElementById('btn-back').onclick = () => Router.navigate('employees/view');
   document.getElementById('form').onsubmit = async e => {
     e.preventDefault();
-    const r = await window.db.employees.update({ id: Number(id), name: formVal('name'), contact: formVal('contact') });
+    const r = await window.db.employees.update({ 
+      id: Number(id),
+      name: formVal('name'), 
+      designation: formVal('designation'), 
+      address: formVal('address'), 
+      contact: formVal('contact'), 
+      email: formVal('email')});
+      
     if (r.success) { toast('Employee updated'); Router.navigate('employees/view'); }
     else toast('Error: ' + r.error, true);
   };

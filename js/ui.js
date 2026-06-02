@@ -27,17 +27,12 @@ function renderSidebar(activePage) {
   const pages = [
     { id: 'products', label: 'Products', icon: 'fa-box' },
     { id: 'suppliers', label: 'Suppliers', icon: 'fa-truck' },
+    { id: 'clients', label: 'Clients', icon: 'fa-users' },
+    { id: 'employees', label: 'employees', icon: 'fa-users' },
+    { id: 'bankAccount', label: 'Bank Accounts', icon: 'fa-tags' },
+    { id: 'orders',     label: 'Orders',     icon: 'fa-receipt' },
 
     /////////////////////////////////////////////////////////////////
-
-    { id: 'hospitals',  label: 'Hospitals',  icon: 'fa-hospital' },
-    { id: 'employees',  label: 'Employees',  icon: 'fa-users' },
-    { id: 'items',      label: 'Items',      icon: 'fa-box' },
-    { id: 'recievers',  label: 'Receivers',  icon: 'fa-person-chalkboard' },
-    { id: 'orders',     label: 'Orders',     icon: 'fa-receipt' },
-    { id: 'categories', label: 'Categories', icon: 'fa-tags' },
-    { id: 'stock',      label: 'Stock',      icon: 'fa-warehouse' },
-    { id: 'charts',     label: 'Charts',     icon: 'fa-chart-bar' },
   ];
 
   const links = pages.map(p => `
