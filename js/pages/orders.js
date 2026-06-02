@@ -176,14 +176,13 @@ Router.register('orders/create', async ({ cloneFrom } = {}) => {
           <div style="position:relative;margin-bottom:10px">
             <i class="fas fa-search" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#aaa;font-size:13px"></i>
             <input id="productSearch" placeholder="Search by name, ID, brand…"
-              style="width:100%;border:1.5px solid #e0e0e0;border-radius:10px;padding:9px 13px 9px 36px;font-size:13px;font-family:inherit"
-              oninput="window._renderProductList()"/>
+              style="width:100%;border:1.5px solid #e0e0e0;border-radius:10px;padding:9px 13px 9px 36px;font-size:13px;font-family:inherit"/>
           </div>
           <div id="productsList" style="max-height:240px;overflow-y:auto;border:1.5px solid #f0f0f0;border-radius:10px"></div>
 
           <!-- Selected items summary -->
-          <div id="selectedWrap" style="margin-top:14px;display:none;border:1.5px solid #f0f0f0;border-radius:10px;overflow:hidden">
-            <table style="width:100%;border-collapse:collapse">
+          <div id="selectedWrap" style="margin-top:14px;display:none;border:1.5px solid #f0f0f0;border-radius:10px;">
+            <table class="tablelite" style="width:100%;border-collapse:collapse">
               <thead style="background:#032e3f">
                 <tr>
                   <th style="padding:9px 12px;font-size:11px;color:#fff;font-weight:600;text-align:left">Product</th>
@@ -209,25 +208,25 @@ Router.register('orders/create', async ({ cloneFrom } = {}) => {
           <div class="form-row">
             <div class="form-group">
               <label>Discount %</label>
-              <div class="input-prefix"><span>%</span><input type="number" id="c_discount" min="0" max="100" step="0.01" value="${clone?clone.discount_rate:0}" oninput="window._updateFin()"/></div>
+              <div class="input-prefix"><span>%</span><input type="number" id="c_discount" min="0" max="100" step="0.01" value="${clone?clone.discount_rate:0}"/></div>
             </div>
             <div class="form-group">
               <label>NBT %</label>
-              <div class="input-prefix"><span>%</span><input type="number" id="c_nbt" min="0" step="0.01" value="${clone?clone.nbt_rate:0}" oninput="window._updateFin()"/></div>
+              <div class="input-prefix"><span>%</span><input type="number" id="c_nbt" min="0" step="0.01" value="${clone?clone.nbt_rate:0}"/></div>
             </div>
             <div class="form-group">
               <label>VAT %</label>
-              <div class="input-prefix"><span>%</span><input type="number" id="c_vat" min="0" step="0.01" value="${clone?clone.vat_rate:0}" oninput="window._updateFin()"/></div>
+              <div class="input-prefix"><span>%</span><input type="number" id="c_vat" min="0" step="0.01" value="${clone?clone.vat_rate:0}"/></div>
             </div>
           </div>
           <div class="form-row">
             <div class="form-group">
               <label>Transport Cost (LKR)</label>
-              <div class="input-prefix"><span>LKR</span><input type="number" id="c_transport" min="0" step="0.01" value="${clone?clone.transport:0}" oninput="window._updateFin()"/></div>
+              <div class="input-prefix"><span>LKR</span><input type="number" id="c_transport" min="0" step="0.01" value="${clone?clone.transport:0}"/></div>
             </div>
             <div class="form-group">
               <label>Commission %</label>
-              <div class="input-prefix"><span>%</span><input type="number" id="c_commission" min="0" step="0.01" value="${clone?clone.commission_rate:0}" oninput="window._updateFin()"/></div>
+              <div class="input-prefix"><span>%</span><input type="number" id="c_commission" min="0" step="0.01" value="${clone?clone.commission_rate:0}"/></div>
             </div>
           </div>
         </div>
@@ -305,18 +304,43 @@ Router.register('orders/create', async ({ cloneFrom } = {}) => {
   // ── Local state for this page ──
   let selectedItems = { ...cloneItems };
 
-  // Expose helpers to inline oninput handlers
-  window._renderProductList = renderProductList;
-  window._updateFin = updateFin;
-
   document.getElementById('btn-back').onclick   = () => Router.navigate('orders/view');
   document.getElementById('btn-cancel').onclick = () => Router.navigate('orders/view');
   document.getElementById('btn-save').onclick   = saveOrder;
+
+  // Wire up charge inputs
+  ['c_discount','c_nbt','c_vat','c_transport','c_commission'].forEach(id => {
+    document.getElementById(id).addEventListener('input', updateFin);
+  });
+
+  // Wire up product search
+  document.getElementById('productSearch').addEventListener('input', renderProductList);
 
   renderProductList();
   renderSelectedItems();
   updateFin();
 
+  // ── Product toggle & qty (local, no window globals needed) ────────────────
+  function toggleProduct(pid) {
+    if (selectedItems[pid]) {
+      delete selectedItems[pid];
+    } else {
+      const p = dd.products.find(x => x.id === pid);
+      if (p) selectedItems[pid] = { product: p, qty: 1 };
+    }
+    renderProductList();
+    renderSelectedItems();
+    updateFin();
+  }
+
+  function updateQty(pid, val) {
+    const q = Math.max(1, parseInt(val) || 1);
+    if (selectedItems[pid]) {
+      selectedItems[pid].qty = q;
+      renderSelectedItems();
+      updateFin();
+    }
+  }
   // ── Product list ──────────────────────────────────────────────────────────
   function renderProductList() {
     const q    = (document.getElementById('productSearch').value || '').toLowerCase();
@@ -333,9 +357,9 @@ Router.register('orders/create', async ({ cloneFrom } = {}) => {
       return;
     }
     list.innerHTML = filtered.map(p => `
-      <div class="product-row-d ${selectedItems[p.id] ? 'sel-d' : ''}">
+      <div class="product-row-d ${selectedItems[p.id] ? 'sel-d' : ''}" data-pid="${p.id}">
         <input type="checkbox" class="pcheck" ${selectedItems[p.id] ? 'checked' : ''}
-          onchange="window._toggleProduct(${p.id})" id="pc_${p.id}"/>
+          data-pid="${p.id}" id="pc_${p.id}"/>
         <div style="flex:1">
           <div class="pname-d">${esc(p.name)}</div>
           <div class="pmeta-d">${esc(p.productID)}${p.brand?' · '+esc(p.brand):''}${p.model?' · '+esc(p.model):''}</div>
@@ -347,32 +371,19 @@ Router.register('orders/create', async ({ cloneFrom } = {}) => {
         <input type="number" class="qty-d" min="1"
           value="${selectedItems[p.id] ? selectedItems[p.id].qty : 1}"
           id="qty_${p.id}"
-          ${selectedItems[p.id] ? '' : 'disabled'}
-          onchange="window._updateQty(${p.id}, this.value)"
-          onclick="event.stopPropagation()"/>
+          data-pid="${p.id}"
+          ${selectedItems[p.id] ? '' : 'disabled'}/>
       </div>`).join('');
+
+    // Bind events after each render
+    list.querySelectorAll('.pcheck').forEach(cb => {
+      cb.addEventListener('change', () => toggleProduct(parseInt(cb.dataset.pid)));
+    });
+    list.querySelectorAll('.qty-d').forEach(input => {
+      input.addEventListener('change', () => updateQty(parseInt(input.dataset.pid), input.value));
+      input.addEventListener('click',  e => e.stopPropagation());
+    });
   }
-
-  window._toggleProduct = pid => {
-    if (selectedItems[pid]) {
-      delete selectedItems[pid];
-    } else {
-      const p = dd.products.find(x => x.id === pid);
-      if (p) selectedItems[pid] = { product: p, qty: 1 };
-    }
-    renderProductList();
-    renderSelectedItems();
-    updateFin();
-  };
-
-  window._updateQty = (pid, val) => {
-    const q = Math.max(1, parseInt(val) || 1);
-    if (selectedItems[pid]) {
-      selectedItems[pid].qty = q;
-      renderSelectedItems();
-      updateFin();
-    }
-  };
 
   function renderSelectedItems() {
     const entries = Object.values(selectedItems);
